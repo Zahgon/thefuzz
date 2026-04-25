@@ -4,7 +4,7 @@ translation_table = {i: None for i in range(128, 256)}  # ascii dammit!
 
 
 def ascii_only(s):
-    return s.translate(translation_table)
+    pass
 
 
 def full_process(s, force_ascii=False):
@@ -15,8 +15,4 @@ def full_process(s, force_ascii=False):
     -- force to lower case
     if force_ascii == True, force convert to ascii
     """
-
-    if force_ascii:
-        s = ascii_only(str(s))
-
-    return _default_process(s)
+    pass

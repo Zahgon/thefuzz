@@ -27,22 +27,7 @@ def _get_processor(processor, scorer):
     function passed into process.* while rapidfuzz only runs the one passed into
     process.*. This function wraps the processor to mimic this behavior
     """
-    if scorer not in (fuzz.WRatio, fuzz.QRatio,
-                      fuzz.token_set_ratio, fuzz.token_sort_ratio,
-                      fuzz.partial_token_set_ratio, fuzz.partial_token_sort_ratio,
-                      fuzz.UWRatio, fuzz.UQRatio):
-        return processor
-
-    force_ascii = scorer not in [fuzz.UWRatio, fuzz.UQRatio]
-    pre_processor = partial(utils.full_process, force_ascii=force_ascii)
-
-    if not processor or processor == utils.full_process:
-        return pre_processor
-
-    def wrapper(s):
-        return pre_processor(processor(s))
-
-    return wrapper
+    pass
 
 
 # this allows lowering the scorers back to the scorers used in rapidfuzz
@@ -70,19 +55,11 @@ def _get_scorer(scorer):
     rapidfuzz scorers require the score_cutoff argument to be available
     This generates a compatible wrapper function
     """
-    def wrapper(s1, s2, score_cutoff=0):
-        return scorer(s1, s2)
-
-    return _scorer_lowering.get(scorer, wrapper)
+    pass
 
 
 def _validate_query_preprocessing(query, processor):
-    if processor:
-        processed_query = processor(query)
-        if len(processed_query) == 0:
-            _logger.warning("Applied processor reduces input query to empty string, "
-                            "all comparisons will have score 0. "
-                            f"[Query: \'{query}\']")
+    pass
 
 
 @t.overload
@@ -160,22 +137,7 @@ def extractWithoutOrder(
 
         ('train', 22, 'bard'), ('man', 0, 'dog')
     """
-    is_mapping = hasattr(choices, "items")
-    is_lowered = scorer in _scorer_lowering
-
-    _validate_query_preprocessing(query, processor)
-    it = rprocess.extract_iter(
-        query, choices,
-        processor=_get_processor(processor, scorer),
-        scorer=_get_scorer(scorer),
-        score_cutoff=score_cutoff
-    )
-
-    for choice, score, key in it:
-        if is_lowered:
-            score = int(round(score))
-
-        yield (choice, score, key) if is_mapping else (choice, score)
+    pass
 
 
 @t.overload
@@ -252,7 +214,7 @@ def extract(
 
         [('train', 22, 'bard'), ('man', 0, 'dog')]
     """
-    return extractBests(query, choices, processor=processor, scorer=scorer, limit=limit)
+    pass
 
 
 @t.overload
@@ -306,25 +268,7 @@ def extractBests(
 
     Returns: A a list of (match, score) tuples.
     """
-    is_mapping = hasattr(choices, "items")
-    is_lowered = scorer in _scorer_lowering
-
-    _validate_query_preprocessing(query, processor)
-    results = rprocess.extract(
-        query, choices,
-        processor=_get_processor(processor, scorer),
-        scorer=_get_scorer(scorer),
-        score_cutoff=score_cutoff,
-        limit=limit
-    )
-
-    for i, (choice, score, key) in enumerate(results):
-        if is_lowered:
-            score = int(round(score))
-
-        results[i] = (choice, score, key) if is_mapping else (choice, score)
-
-    return results
+    pass
 
 
 @t.overload
@@ -377,26 +321,7 @@ def extractOne(
         A tuple containing a single match and its score, if a match
         was found that was above score_cutoff. Otherwise, returns None.
     """
-    is_mapping = hasattr(choices, "items")
-    is_lowered = scorer in _scorer_lowering
-
-    _validate_query_preprocessing(query, processor)
-    res = rprocess.extractOne(
-        query, choices,
-        processor=_get_processor(processor, scorer),
-        scorer=_get_scorer(scorer),
-        score_cutoff=score_cutoff
-    )
-
-    if res is None:
-        return res
-
-    choice, score, key = res
-
-    if is_lowered:
-        score = int(round(score))
-
-    return (choice, score, key) if is_mapping else (choice, score)
+    pass
 
 
 _TC = t.TypeVar("_TC", bound=t.Collection[str])
@@ -435,9 +360,4 @@ def dedupe(
             In: dedupe(contains_dupes)
             Out: ['Frodo Baggins', 'Samwise G.', 'Bilbo Baggins', 'Gandalf']
     """
-    deduped = set()
-    for item in contains_dupes:
-        matches = extractBests(item, contains_dupes, scorer=scorer, score_cutoff=threshold, limit=None)
-        deduped.add(max(matches, key=lambda x: (len(x[0]), x[0]))[0])
-
-    return list(deduped) if len(deduped) != len(contains_dupes) else contains_dupes
+    pass
